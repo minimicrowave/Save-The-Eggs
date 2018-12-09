@@ -4,9 +4,9 @@ var score;
 
 function startGame() {
     gameArea.start();
-    chick = new component(30, 30, "yellow", 300, 300);
-    theObstacles = new component(10, 200, "green", 500, 320);
-    score = new component("20px", "Gloria Hallelujah", "black", 30, 40, "text");
+    chick = new component(30, 30, "yellow", 550, 350);
+    // theObstacles = new component(20, 20, "ducky.png", 20, 300, "image");
+    score = new component("20px", "BenchNine", "black", 20, 30, "text");
     // eggs = new component(30, 30, "egg.png", );
     window.addEventListener('keydown', doKeyDown, true);
     // window.addEventListener('keyup', doKeyUp, true);
@@ -14,6 +14,10 @@ function startGame() {
 
 function component(width, height, color, x, y, type) {
     this.type = type;
+    if (type == "image") {
+        this.image == new Image();
+        this.image.src = color;
+    }
     this.width = width;
     this.height = height;
     this.speedX = 0;
@@ -26,6 +30,8 @@ function component(width, height, color, x, y, type) {
             ctx.font = this.width + " " + this.height;
             ctx.fillStyle = color;
             ctx.fillText(this.text, this.x, this.y);
+        } else if (type == "image") {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
         } else {
             ctx.fillStyle = color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -115,7 +121,7 @@ var gameArea = {
         this.canvas.width = 600;
         this.context = this.canvas.getContext("2d");
         document.querySelector("main").appendChild(this.canvas);
-        this.interval = setInterval(updateGameArea, 50);
+        this.interval = setInterval(updateGameArea, 40);
     },
 
     clear: function () {
@@ -130,20 +136,20 @@ var gameArea = {
 // Update Game Area
 
 function updateGameArea() {
-    if (chick.crashWith(theObstacles)) {
-        gameArea.stop();
-    } else {
+    // if (chick.crashWith(theObstacles)) {
+    //     gameArea.stop();
+    // } else {
         gameArea.clear();
-        score.text="Score: "
+        score.text = "Score: "
         score.update();
-        theObstacles.update();
+        // theObstacles.update();
         chick.newPos();
         // chick.contain();
         chick.bounce();
         chick.update();
-        console.log("speed x ", chick.speedX);
-        console.log("speed y ", chick.speedY);
-    }
+        // console.log("speed x ", chick.speedX);
+        // console.log("speed y ", chick.speedY);
+    // }
 }
 
 
