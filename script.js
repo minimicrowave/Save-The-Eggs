@@ -4,13 +4,45 @@ var egg;
 var duckies = [];
 var score;
 var currentScore = 0;
+var gameStarted = false;
+var titleScreen;
+var titleScreenInstr;
+var titleScreenBg;
+
+
+window.onload = function () {
+    debugger;
+    gameArea.start();
+    // titleScreenBg.update();
+    titleScreen = new component("17px", 'Courier', "black", 85, 230, "text");
+    titleScreen.text = "Avoid the rubber duckies and save the eggs!";
+    titleScreenInstr = new component("14px", 'Courier', "grey", 195, 260, "text");
+    titleScreenInstr.text = "Press <spacebar> to start.";
+    titleScreen.update();
+    titleScreenInstr.update();
+    window.addEventListener("keydown", toInitialiseGame);
+}
+
+
+// Start game event listener. 
+
+
+function toInitialiseGame(evt) {
+    if (evt.keyCode == 32) {
+        window.removeEventListener("keydown", toInitialiseGame);
+        gameStarted = true;
+        gameArea.clear();
+        startGame();
+    }
+}
+
 
 function startGame() {
     gameArea.start();
     chick = new component(30, 30, "yellow", 550, 350);
     // chick = new component(30, 30, "chick.png", 550, 350, "image");
     // theObstacles = new component(20, 20, "ducky.png", 20, 300, "image");
-    egg = new component(30, 30, "orange", 400, 530);
+    egg = new component(20, 20, "orange", 400, 530);
     score = new component("20px", "BenchNine", "black", 20, 30, "text");
     window.addEventListener('keydown', doKeyDown, true);
 
@@ -147,7 +179,13 @@ var gameArea = {
         this.context = this.canvas.getContext("2d");
         document.querySelector("main").appendChild(this.canvas);
         this.frameNo = 0;
-        this.interval = setInterval(updateGameArea, 20);
+
+        console.log(gameStarted);
+        if (gameStarted == true) {
+            this.interval = setInterval(updateGameArea, 20);
+        } else {
+            return;
+        }
     },
 
     clear: function () {
@@ -163,7 +201,7 @@ var gameArea = {
 
 function updateGameArea() {
     gameArea.clear();
-    
+
     chick.newPos();
     chick.bounce();
     chick.update();
@@ -171,6 +209,7 @@ function updateGameArea() {
         if (chick.crashWith(duckies[i])) {
             duckies[i].update();
             duckies[i].newPos();
+            score.update();
             gameArea.stop();
             return;
         }
@@ -189,14 +228,14 @@ function updateGameArea() {
         duckies[i].reset();
         duckies[i].update();
         duckies[i].newPos();
-        console.log(duckies[i]);
+        // console.log(duckies[i]);
     }
 
 
-    
+
     egg.update();
     egg.newPos();
-    if (chick.crashWith(egg)){
+    if (chick.crashWith(egg)) {
         currentScore += 1;
         egg.x = Math.random() * 570;
         egg.y = Math.random() * 530 + 40;
