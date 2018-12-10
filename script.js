@@ -1,18 +1,18 @@
 var chick;
 var theObstacles;
+var egg;
 var duckies = [];
 var score;
+var currentScore = 0;
 
 function startGame() {
     gameArea.start();
     chick = new component(30, 30, "yellow", 550, 350);
     // chick = new component(30, 30, "chick.png", 550, 350, "image");
-    theObstacles = new component(20, 20, "black", 0, 330);
     // theObstacles = new component(20, 20, "ducky.png", 20, 300, "image");
+    egg = new component(30, 30, "orange", 400, 530);
     score = new component("20px", "BenchNine", "black", 20, 30, "text");
-    // eggs = new component(30, 30, "egg.png", );
     window.addEventListener('keydown', doKeyDown, true);
-    // window.addEventListener('keyup', doKeyUp, true);
 
 
 
@@ -47,6 +47,7 @@ function component(width, height, color, x, y, type) {
         this.x += this.speedX;
         this.y += this.speedY;
     };
+    // if chick crashes with duckies // egg
     this.crashWith = function (otherobj) {
         var chickleft = this.x;
         var chickright = this.x + (this.width);
@@ -84,9 +85,10 @@ function component(width, height, color, x, y, type) {
             this.speedY = -this.speedY;
         }
     }
+    // ensuring there is always ducks in the frame
     this.reset = function () {
-        for (var i in duckies){
-            if (duckies[i].x > gameArea.canvas.width){
+        for (var i in duckies) {
+            if (duckies[i].x > gameArea.canvas.width) {
                 duckies[i].x = -40;
                 duckies[i].y = (Math.random() * 530) + 40;
                 duckies[i].x += Math.random() * 5;
@@ -145,7 +147,7 @@ var gameArea = {
         this.context = this.canvas.getContext("2d");
         document.querySelector("main").appendChild(this.canvas);
         this.frameNo = 0;
-        this.interval = setInterval(updateGameArea, 40);
+        this.interval = setInterval(updateGameArea, 20);
     },
 
     clear: function () {
@@ -160,79 +162,60 @@ var gameArea = {
 // Update Game Area
 
 function updateGameArea() {
-    var x, y;
+    gameArea.clear();
+    
+    chick.newPos();
+    chick.bounce();
+    chick.update();
     for (i = 0; i < duckies.length; i++) {
         if (chick.crashWith(duckies[i])) {
+            duckies[i].update();
+            duckies[i].newPos();
             gameArea.stop();
             return;
         }
     }
-    gameArea.clear();
     gameArea.frameNo += 1;
-    var intervals = Math.random() * 100;
-    if ((gameArea.frameNo == 1) || everyinterval(70)) {
+
+    // adds duck component every 140frames
+    // if ducks less than 6, add one
+    if (((gameArea.frameNo == 1) || everyinterval(140)) && duckies.length < 6) {
         duckies.push(new component(20, 20, "blue", (Math.random() * 5), ((Math.random() * 530) + 40)))
     }
-    for (i = 0; i < 6; i++) {
-        duckies[i].x += Math.random() * 5;
+
+    // allows only 6 ducks to appear every time
+    for (var i = 0; i < duckies.length; i++) {
+        duckies[i].x += Math.floor(Math.random() * 3 + 2.5);
         duckies[i].reset();
         duckies[i].update();
         duckies[i].newPos();
-
-
-
-
-        // if (chick.crashWith(theObstacles)) {
-        //     gameArea.stop();
-        // } else {
-        //     theObstacles.x += 1;
-        //     gameArea.clear();
-        score.text = "Score: "
-        score.update();
-        //     theObstacles.update();
-        chick.newPos();
-        // chick.contain();
-        chick.bounce();
-        chick.update();
-        // }
+        console.log(duckies[i]);
     }
+
+
+    
+    egg.update();
+    egg.newPos();
+    if (chick.crashWith(egg)){
+        currentScore += 1;
+        egg.x = Math.random() * 570;
+        egg.y = Math.random() * 530 + 40;
+        egg.update();
+        egg.newPos();
+    }
+
+
+    score.text = "Score: " + currentScore;
+    score.update();
+
+
 }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    // duckyImage = new Image();
+////////////////////////////////////////////////////////////////////////////////////////////
+// duckyImage = new Image();
 
-    // duckyImage.onload = () => {
-    //     duckyReady = true;
-    // }
+// duckyImage.onload = () => {
+//     duckyReady = true;
+// }
 
-    // duckyImage.src = "ducky.png";
-
-    // class Ducky {
-    //     constructor(speed, x, y){
-    //         this.speed = x;
-    //         this.x = x;
-    //         this.y = y;
-    //     }
-    // }
-
-
-    // var duckyCaught = 0;
-
-    // for (var i = 0; i < 3; i++) {
-    //     duckies.push(new component(20, 20, "blue", (Math.random() * 4), ((Math.random() * 560) + 40)));
-    // }
-
-    // function reset(m) {
-    //     duckies[m].x = -40;
-    //     duckies[m].y = (Math.random() * 560) + 40;
-    //     duckies[m].speed = Math.random() * 3;
-    // }
-
-    // function update() {
-    //     for (var j in duckies){
-    //         if (monsters[j].x > canvas.width) {
-    //             reset(j);
-    //         } 
-    //     }
-    // }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
+// duckyImage.src = "ducky.png";
