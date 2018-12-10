@@ -11,9 +11,8 @@ var titleScreenBg;
 
 
 window.onload = function () {
-    debugger;
+    // debugger;
     gameArea.start();
-    // titleScreenBg.update();
     titleScreen = new component("17px", 'Courier', "black", 85, 230, "text");
     titleScreen.text = "Avoid the rubber duckies and save the eggs!";
     titleScreenInstr = new component("14px", 'Courier', "grey", 195, 260, "text");
@@ -39,10 +38,10 @@ function toInitialiseGame(evt) {
 
 function startGame() {
     gameArea.start();
-    chick = new component(30, 30, "yellow", 550, 350);
-    // chick = new component(30, 30, "chick.png", 550, 350, "image");
+    // chick = new component(30, 30, "yellow", 550, 350);
+    chick = new component(30, 30, "chick.png", 550, 350, "image");
     // theObstacles = new component(20, 20, "ducky.png", 20, 300, "image");
-    egg = new component(20, 20, "orange", 400, 530);
+    egg = new component(20, 20, "egg.png", 400, 530, "image");
     score = new component("20px", "BenchNine", "black", 20, 30, "text");
     window.addEventListener('keydown', doKeyDown, true);
 
@@ -52,8 +51,9 @@ function startGame() {
 
 function component(width, height, color, x, y, type) {
     this.type = type;
+    debugger;
     if (type == "image") {
-        this.image == new Image();
+        this.image = new Image();
         this.image.src = color;
     }
     this.width = width;
@@ -64,6 +64,7 @@ function component(width, height, color, x, y, type) {
     this.y = y;
     this.update = function () {
         ctx = gameArea.context;
+     
         if (this.type == "text") {
             ctx.font = this.width + " " + this.height;
             ctx.fillStyle = color;
@@ -219,7 +220,7 @@ function updateGameArea() {
     // adds duck component every 140frames
     // if ducks less than 6, add one
     if (((gameArea.frameNo == 1) || everyinterval(140)) && duckies.length < 6) {
-        duckies.push(new component(20, 20, "blue", (Math.random() * 5), ((Math.random() * 530) + 40)))
+        duckies.push(new component(30, 30, "ducky.png", (Math.random() * 5), ((Math.random() * 530) + 40), "image"))
     }
 
     // allows only 6 ducks to appear every time
@@ -244,7 +245,7 @@ function updateGameArea() {
     }
 
 
-    score.text = "Score: " + currentScore;
+    score.text = "Eggy Score: " + currentScore;
     score.update();
 
 
