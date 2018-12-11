@@ -7,15 +7,15 @@ var currentScore = 0;
 var gameStarted = false;
 var titleScreen;
 var titleScreenInstr;
-var titleScreenBg;
-
+var endGameBkg;
+var endGameText;
+var endGameText2;
 
 window.onload = function () {
-    // debugger;
     gameArea.start();
-    titleScreen = new component("17px", 'Courier', "black", 85, 230, "text");
+    titleScreen = new component("17px", 'Courier', "black", 85, 250, "text");
     titleScreen.text = "Avoid the rubber duckies and save the eggs!";
-    titleScreenInstr = new component("14px", 'Courier', "grey", 195, 260, "text");
+    titleScreenInstr = new component("14px", 'Courier', "grey", 195, 280, "text");
     titleScreenInstr.text = "Press <spacebar> to start.";
     titleScreen.update();
     titleScreenInstr.update();
@@ -51,7 +51,6 @@ function startGame() {
 
 function component(width, height, color, x, y, type) {
     this.type = type;
-    debugger;
     if (type == "image") {
         this.image = new Image();
         this.image.src = color;
@@ -64,7 +63,7 @@ function component(width, height, color, x, y, type) {
     this.y = y;
     this.update = function () {
         ctx = gameArea.context;
-     
+
         if (this.type == "text") {
             ctx.font = this.width + " " + this.height;
             ctx.fillStyle = color;
@@ -195,6 +194,7 @@ var gameArea = {
 
     stop: function () {
         clearInterval(this.interval);
+        resetGame();
     }
 }
 
@@ -207,10 +207,14 @@ function updateGameArea() {
     chick.bounce();
     chick.update();
     for (i = 0; i < duckies.length; i++) {
-        if (chick.crashWith(duckies[i])) {
-            duckies[i].update();
-            duckies[i].newPos();
+        if (chick.crashWith(duckies[i])) { // GAME OVERRRR
+            // to ensure all items still remains on screen before game stops and game over sign appears
+            for (var j in duckies){
+                duckies[j].update();
+            }
             score.update();
+            egg.update();
+
             gameArea.stop();
             return;
         }
@@ -249,6 +253,23 @@ function updateGameArea() {
     score.update();
 
 
+}
+
+function resetGame() {
+    // Game over alert
+    endGameBkg = new component(600, 100, "rgba(0,0,0,0.5)", 0, 250);
+    endGameBkg.update();
+    endGameText = new component("19px", 'Courier', "white", 215, 280, "text");
+    endGameText.text = "G A M E  O V E R";
+    endGameText.update();
+    endGameText2 = new component("14px", 'Courier', "white", 185, 320, "text");
+    endGameText2.text = "Press <spacebar> to try again.";
+    endGameText2.update();
+
+    // To reset game conditions
+    currentScore = 0;
+    duckies = [];
+    window.addEventListener("keydown", toInitialiseGame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
