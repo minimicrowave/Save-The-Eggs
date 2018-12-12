@@ -1,3 +1,4 @@
+// global variables
 var chick;
 var theObstacles;
 var egg;
@@ -11,11 +12,47 @@ var endGameBkg;
 var endGameText;
 var endGameText2;
 
+// powerups variables
+var randomNumForScore = 6; // to make sure player at least attains score of 6 before powerups starts coming in.
+var powerUpLoopDone = true;
+var settingInterval = false;
+var randomNumForPowerup;
+var countdown = 0;
+var collisionFx = true;
+var powerUpArray = []; // to make sure only 1 powerUp is available for user at any moment
+var activePowerUp = []; // to append active powerups to find if collision +ve whilst looping through
+var drawPowerUp = true; // removes power up if hovered.
+
+// powerup
+var intervalNo = 110; // default refresh interval
+var slow;
+var duckSpeed = 2; // default duck speed number range;
+
+var invincibility;
+var bomb;
+var bucket;
+var boom;
+
+
+
+/*
+
+            INITIALISING GAME
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
+
+
+
+// loads start menu
 window.onload = function () {
     gameArea.start();
-    titleScreen = new component("17px", 'Courier', "black", 85, 250, "text");
+    titleScreen = new component("17px", 'Courier', "black", 85, 290, "text");
     titleScreen.text = "Avoid the rubber duckies and save the eggs!";
-    titleScreenInstr = new component("14px", 'Courier', "grey", 195, 280, "text");
+    titleScreenInstr = new component("14px", 'Courier', "grey", 195, 310, "text");
     titleScreenInstr.text = "Press <spacebar> to start.";
     titleScreen.update();
     titleScreenInstr.update();
@@ -23,8 +60,7 @@ window.onload = function () {
 }
 
 
-// Start game event listener. 
-
+// Start game start event listener.
 
 function toInitialiseGame(evt) {
     if (evt.keyCode == 32) {
@@ -35,20 +71,31 @@ function toInitialiseGame(evt) {
     }
 }
 
-
+// start game & create all constant variables
 function startGame() {
     gameArea.start();
-    // chick = new component(30, 30, "yellow", 550, 350);
-    chick = new component(30, 30, "chick.png", 550, 350, "image");
-    // theObstacles = new component(20, 20, "ducky.png", 20, 300, "image");
-    egg = new component(20, 20, "egg.png", 400, 530, "image");
+    chick = new component(30, 30, "chick.png", 550, 310, "image");
+    egg = new component(20, 20, "egg.png", Math.random() * 570, (Math.random() * 530 + 40), "image");
     score = new component("20px", "BenchNine", "black", 20, 30, "text");
+
     window.addEventListener('keydown', doKeyDown, true);
-
-
-
 }
 
+
+/*
+
+            DEFINING COMPONENTS
+
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
+
+
+
+// defines component to draw texts, images, diagrams
 function component(width, height, color, x, y, type) {
     this.type = type;
     if (type == "image") {
@@ -79,7 +126,8 @@ function component(width, height, color, x, y, type) {
         this.x += this.speedX;
         this.y += this.speedY;
     };
-    // if chick crashes with duckies // egg
+
+    // if chick crashes with duckies // eggs // powerup functions
     this.crashWith = function (otherobj) {
         var chickleft = this.x;
         var chickright = this.x + (this.width);
@@ -95,6 +143,8 @@ function component(width, height, color, x, y, type) {
         }
         return crash;
     }
+
+
     // contains chick without bouncing off walls.
     this.contain = function () {
         if (this.x < 0) {
@@ -108,6 +158,7 @@ function component(width, height, color, x, y, type) {
             this.y = (gameArea.canvas.height - this.height);
         }
     }
+
     // contains chick by bouncing off walls.
     this.bounce = function () {
         if (this.x + this.width > gameArea.canvas.width || this.x < 0) {
@@ -117,17 +168,218 @@ function component(width, height, color, x, y, type) {
             this.speedY = -this.speedY;
         }
     }
+
     // ensuring there is always ducks in the frame
     this.reset = function () {
         for (var i in duckies) {
             if (duckies[i].x > gameArea.canvas.width) {
-                duckies[i].x = -40;
                 duckies[i].y = (Math.random() * 530) + 40;
-                duckies[i].x += Math.random() * 5;
+                duckies[i].x = -40;
+                duckies[i].speedX = Math.random() * duckSpeed;
+                duckies[i].x += duckies[i].speedX;
+                console.log(duckies[i].speedX);
             }
         }
     }
 }
+
+
+
+
+/*
+
+            POWERUP FUNCTIONS
+
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
+
+
+var powerUps = [
+    // {
+    //     name: "Slow",
+    //     startFunc: function () {
+    //         countdown += 1;
+
+    //         if (!settingInterval) {
+    //             // sets 10 sec interval
+    //             tenSecInterval = setInterval(function () {
+    //                 // console.log("tensecinterval")
+    //             }, 1000);
+
+    //             // reset base settings
+    //             settingInterval = true;
+    //             drawPowerUp = true;
+    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+    //             // defines new slow x,y component
+    //             slow = new component(20, 20, "slow.png", Math.random() * 570, (Math.random() * 530 + 40), "image");
+    //             slow.effect = function () {
+    //                 activePowerUp.pop();
+    //                 duckSpeed = 0.4;
+    //                 console.log("ducko: ", duckSpeed);
+    //                 setTimeout(function () {
+    //                     duckSpeed = 2;
+    //                     console.log("oy mate mi done");
+    //                 }, 10000);
+    //             }
+    //             activePowerUp.push(slow);
+
+    //         } else if (settingInterval && drawPowerUp) {
+    //             // draws powerup only during this 10s interim unless picked up by chick
+    //             slow.update();
+    //         }
+
+    //         // sets the 10s timer for powerup, so that it only appears for 10s
+    //         if (countdown === 400) {
+    //             resetPowerUp();
+    //         }
+    //     }
+    // },
+    // {
+    //     name: "Invincibility",
+    //     startFunc: function () {
+    //         countdown += 1;
+
+    //         if (!settingInterval) {
+    //             // sets 10 sec interval
+    //             tenSecInterval = setInterval(function () {
+    //                 // console.log("tensecinterval")
+    //             }, 1000);
+
+    //             // reset base settings
+    //             settingInterval = true;
+    //             drawPowerUp = true;
+    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+
+    //             // defines new slow x,y component
+    //             invincibility = new component(20, 20, "invincibility.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
+    //             invincibility.effect = function () {
+    //                 // REMEMBER TO ADD CAPE TO CHICK!!!!
+    //                 activePowerUp.pop();
+    //                 collisionFx = false;
+    //                 console.log("COLLISION ACTIVATED: ", collisionFx);
+    //                 setTimeout(function () {
+    //                     collisionFx = true;
+    //                     console.log("oy mate mi done");
+    //                 }, 10000);
+    //             }
+    //             activePowerUp.push(invincibility);
+
+    //         } else if (settingInterval && drawPowerUp) {
+    //             // draws powerup only during this 10s interim unless picked up by chick
+    //             invincibility.update();
+    //         }
+
+    //         // sets the 10s timer for powerup, so that it only appears for 10s
+    //         if (countdown === 400) {
+    //             resetPowerUp();
+    //         }
+    //     }
+    // },
+    {
+        name: "Bomb",
+        startFunc: function () {
+            countdown += 1;
+
+            if (!settingInterval) {
+                // sets 10 sec interval
+                tenSecInterval = setInterval(function () {
+                    // console.log("tensecinterval")
+                }, 1000);
+
+                // reset base settings
+                settingInterval = true;
+                drawPowerUp = true;
+                randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+
+                // defines new slow x,y component
+                bomb = new component(20, 20, "bomb.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
+                bomb.effect = function () {
+                    
+                    console.log("wheeee");
+                    setTimeout(function () {
+                        console.log("oy mate mi done");
+                    }, 10000);
+                    
+                    debugger;
+                    score.update();
+                    egg.update();
+
+                    // bomb effect
+                    boom = new component(20, 20, "boom.png", ((bomb.x + chick.x)/2), ((bomb.y + chick.y)/2), "image");
+                    boom.update();
+
+                    gameArea.stop();
+                    // return;
+                }
+                activePowerUp.push(bomb);
+
+            } else if (settingInterval && drawPowerUp) {
+                // draws powerup only during this 10s interim unless picked up by chick
+                bomb.update();
+            }
+
+            // sets the 10s timer for powerup, so that it only appears for 10s
+            if (countdown === 400) {
+                resetPowerUp();
+            }
+        }
+    },
+    // {
+    //     name: "Bucket",
+    //     startFunc: function () {
+    //         countdown += 1;
+
+    //         if (!settingInterval) {
+    //             // sets 10 sec interval
+    //             tenSecInterval = setInterval(function () {
+    //                 // console.log("tensecinterval")
+    //             }, 1000);
+
+    //             // reset base settings
+    //             settingInterval = true;
+    //             drawPowerUp = true;
+    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+
+    //             // defines new slow x,y component
+    //             bucket = new component(20, 20, "bucketwater.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
+    //             bucket.effect = function () {
+
+    //                 activePowerUp.pop();
+    //                 duckSpeed = 4;
+    //                 console.log("ducko: ", duckSpeed);
+    //                 setTimeout(function () {
+    //                     duckSpeed = 2;
+    //                     console.log("oy mate mi done");
+    //                 }, 10000);
+    
+    //             }
+    //             activePowerUp.push(bucket);
+
+    //         } else if (settingInterval && drawPowerUp) {
+    //             // draws powerup only during this 10s interim unless picked up by chick
+    //             bucket.update();
+    //         }
+
+    //         // sets the 10s timer for powerup, so that it only appears for 10s
+    //         if (countdown === 400) {
+    //             resetPowerUp();
+    //         }
+    //     }
+    // },
+];
+
+function resetPowerUp() {
+    powerUpLoopDone = true;
+    powerUpArray.pop();
+    activePowerUp.pop();
+    settingInterval = false;
+    clearInterval(tenSecInterval);
+}
+
 
 function everyinterval(n) {
     if ((gameArea.frameNo / n) % 1 == 0) {
@@ -137,7 +389,20 @@ function everyinterval(n) {
 }
 
 
-// Keys Functions
+
+/*
+
+            KEY FUNCTIONS
+
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
+
+
+
 function doKeyDown(evt) {
     switch (evt.keyCode) {
         case 38:
@@ -168,8 +433,18 @@ function doKeyDown(evt) {
 }
 
 
+/*
 
-// Canvas Area
+            CANVAS AREA
+
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
+
+
 
 var gameArea = {
     canvas: document.createElement("canvas"),
@@ -198,68 +473,24 @@ var gameArea = {
     }
 }
 
-// Update Game Area
+/*
 
-function updateGameArea() {
-    gameArea.clear();
+            THIS RESETS GAME
 
-    chick.newPos();
-    chick.bounce();
-    chick.update();
-    for (i = 0; i < duckies.length; i++) {
-        if (chick.crashWith(duckies[i])) { // GAME OVERRRR
-            // to ensure all items still remains on screen before game stops and game over sign appears
-            for (var j in duckies){
-                duckies[j].update();
-            }
-            score.update();
-            egg.update();
-
-            gameArea.stop();
-            return;
-        }
-    }
-    gameArea.frameNo += 1;
-
-    // adds duck component every 140frames
-    // if ducks less than 6, add one
-    if (((gameArea.frameNo == 1) || everyinterval(140)) && duckies.length < 6) {
-        duckies.push(new component(30, 30, "ducky.png", (Math.random() * 5), ((Math.random() * 530) + 40), "image"))
-    }
-
-    // allows only 6 ducks to appear every time
-    for (var i = 0; i < duckies.length; i++) {
-        duckies[i].x += Math.floor(Math.random() * 3 + 2.5);
-        duckies[i].reset();
-        duckies[i].update();
-        duckies[i].newPos();
-        // console.log(duckies[i]);
-    }
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ * ===========================================================================================================================================
+ */
 
 
-
-    egg.update();
-    egg.newPos();
-    if (chick.crashWith(egg)) {
-        currentScore += 1;
-        egg.x = Math.random() * 570;
-        egg.y = Math.random() * 530 + 40;
-        egg.update();
-        egg.newPos();
-    }
-
-
-    score.text = "Eggy Score: " + currentScore;
-    score.update();
-
-
-}
 
 function resetGame() {
     // Game over alert
     endGameBkg = new component(600, 100, "rgba(0,0,0,0.5)", 0, 250);
     endGameBkg.update();
-    endGameText = new component("19px", 'Courier', "white", 215, 280, "text");
+    endGameText = new component("19px", 'Courier', "white", 215, 285, "text");
     endGameText.text = "G A M E  O V E R";
     endGameText.update();
     endGameText2 = new component("14px", 'Courier', "white", 185, 320, "text");
@@ -267,16 +498,17 @@ function resetGame() {
     endGameText2.update();
 
     // To reset game conditions
+    randomNumForScore = 6;
+    randomNumForPowerup;
+    powerUpLoopDone = true;
+    settingInterval = false;
+    countdown = 0;
     currentScore = 0;
+    powerUpArray = [];
+    activePowerUp = [];
     duckies = [];
+    drawPowerUp = true;
+    collisionFx = true;
+    duckSpeed = 2;
     window.addEventListener("keydown", toInitialiseGame);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-// duckyImage = new Image();
-
-// duckyImage.onload = () => {
-//     duckyReady = true;
-// }
-
-// duckyImage.src = "ducky.png";
