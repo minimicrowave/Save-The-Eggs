@@ -479,7 +479,7 @@ var gameArea = {
 
     stop: function () {
         clearInterval(this.interval);
-        backgroundMusic.stop();
+        backgroundMusic.play();
         resetGame();
     }
 }
