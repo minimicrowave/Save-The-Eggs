@@ -12,6 +12,11 @@ var endGameBkg;
 var endGameText;
 var endGameText2;
 
+var backgroundMusic;
+var background = new Image();
+background.src = "background.jpg";
+
+
 // powerups variables
 var randomNumForScore = 6; // to make sure player at least attains score of 6 before powerups starts coming in.
 var powerUpLoopDone = true;
@@ -29,6 +34,8 @@ var slow;
 var duckSpeed = 2; // default duck speed number range;
 
 var invincibility;
+var inviChick;
+
 var bomb;
 var bucket;
 var boom;
@@ -49,6 +56,9 @@ var boom;
 
 // loads start menu
 window.onload = function () {
+    backgroundMusic = new Audio("Bongo_Madness.mp3");
+    backgroundMusic.play();
+    
     gameArea.start();
     titleScreen = new component("17px", 'Courier', "black", 85, 290, "text");
     titleScreen.text = "Avoid the rubber duckies and save the eggs!";
@@ -56,6 +66,7 @@ window.onload = function () {
     titleScreenInstr.text = "Press <spacebar> to start.";
     titleScreen.update();
     titleScreenInstr.update();
+    
     window.addEventListener("keydown", toInitialiseGame);
 }
 
@@ -183,11 +194,7 @@ function component(width, height, color, x, y, type) {
     }
 }
 
-
-
-
 /*
-
             POWERUP FUNCTIONS
 
  * ===========================================================================================================================================
@@ -198,87 +205,88 @@ function component(width, height, color, x, y, type) {
  */
 
 
-var powerUps = [
-    // {
-    //     name: "Slow",
-    //     startFunc: function () {
-    //         countdown += 1;
+var powerUps = [{
+        name: "Slow",
+        startFunc: function () {
+            countdown += 1;
 
-    //         if (!settingInterval) {
-    //             // sets 10 sec interval
-    //             tenSecInterval = setInterval(function () {
-    //                 // console.log("tensecinterval")
-    //             }, 1000);
+            if (!settingInterval) {
+                // sets 10 sec interval
+                tenSecInterval = setInterval(function () {
+                    // console.log("tensecinterval")
+                }, 1000);
 
-    //             // reset base settings
-    //             settingInterval = true;
-    //             drawPowerUp = true;
-    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
-    //             // defines new slow x,y component
-    //             slow = new component(20, 20, "slow.png", Math.random() * 570, (Math.random() * 530 + 40), "image");
-    //             slow.effect = function () {
-    //                 activePowerUp.pop();
-    //                 duckSpeed = 0.4;
-    //                 console.log("ducko: ", duckSpeed);
-    //                 setTimeout(function () {
-    //                     duckSpeed = 2;
-    //                     console.log("oy mate mi done");
-    //                 }, 10000);
-    //             }
-    //             activePowerUp.push(slow);
+                // reset base settings
+                settingInterval = true;
+                drawPowerUp = true;
+                randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+                // defines new slow x,y component
+                slow = new component(20, 20, "slow.png", Math.random() * 570, (Math.random() * 530 + 40), "image");
+                slow.effect = function () {
+                    activePowerUp.pop();
+                    duckSpeed = 0.4;
+                    console.log("ducko: ", duckSpeed);
+                    setTimeout(function () {
+                        duckSpeed = 2;
+                        console.log("oy mate mi done");
+                    }, 10000);
+                }
+                activePowerUp.push(slow);
 
-    //         } else if (settingInterval && drawPowerUp) {
-    //             // draws powerup only during this 10s interim unless picked up by chick
-    //             slow.update();
-    //         }
+            } else if (settingInterval && drawPowerUp) {
+                // draws powerup only during this 10s interim unless picked up by chick
+                slow.update();
+            }
 
-    //         // sets the 10s timer for powerup, so that it only appears for 10s
-    //         if (countdown === 400) {
-    //             resetPowerUp();
-    //         }
-    //     }
-    // },
-    // {
-    //     name: "Invincibility",
-    //     startFunc: function () {
-    //         countdown += 1;
+            // sets the 10s timer for powerup, so that it only appears for 10s
+            if (countdown === 400) {
+                resetPowerUp();
+            }
+        }
+    },
+    {
+        name: "Invincibility",
+        startFunc: function () {
+            countdown += 1;
 
-    //         if (!settingInterval) {
-    //             // sets 10 sec interval
-    //             tenSecInterval = setInterval(function () {
-    //                 // console.log("tensecinterval")
-    //             }, 1000);
+            if (!settingInterval) {
+                // sets 10 sec interval
+                tenSecInterval = setInterval(function () {
+                    // console.log("tensecinterval")
+                }, 1000);
 
-    //             // reset base settings
-    //             settingInterval = true;
-    //             drawPowerUp = true;
-    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+                // reset base settings
+                settingInterval = true;
+                drawPowerUp = true;
+                randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
 
-    //             // defines new slow x,y component
-    //             invincibility = new component(20, 20, "invincibility.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
-    //             invincibility.effect = function () {
-    //                 // REMEMBER TO ADD CAPE TO CHICK!!!!
-    //                 activePowerUp.pop();
-    //                 collisionFx = false;
-    //                 console.log("COLLISION ACTIVATED: ", collisionFx);
-    //                 setTimeout(function () {
-    //                     collisionFx = true;
-    //                     console.log("oy mate mi done");
-    //                 }, 10000);
-    //             }
-    //             activePowerUp.push(invincibility);
+                // defines new slow x,y component
+                invincibility = new component(20, 20, "invincibility.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
+                invincibility.effect = function () {
+                    // REMEMBER TO ADD CAPE TO CHICK!!!!
+                    chick.image.src = "testliao.gif";
+                    activePowerUp.pop();
+                    collisionFx = false;
+                    console.log("COLLISION ACTIVATED: ", collisionFx);
+                    setTimeout(function () {
+                        collisionFx = true;
+                        chick.image.src  = "chick.png";
+                        console.log("oy mate mi done");
+                    }, 10000);
+                }
+                activePowerUp.push(invincibility);
 
-    //         } else if (settingInterval && drawPowerUp) {
-    //             // draws powerup only during this 10s interim unless picked up by chick
-    //             invincibility.update();
-    //         }
+            } else if (settingInterval && drawPowerUp) {
+                // draws powerup only during this 10s interim unless picked up by chick
+                invincibility.update();
+            }
 
-    //         // sets the 10s timer for powerup, so that it only appears for 10s
-    //         if (countdown === 400) {
-    //             resetPowerUp();
-    //         }
-    //     }
-    // },
+            // sets the 10s timer for powerup, so that it only appears for 10s
+            if (countdown === 400) {
+                resetPowerUp();
+            }
+        }
+    },
     {
         name: "Bomb",
         startFunc: function () {
@@ -298,18 +306,18 @@ var powerUps = [
                 // defines new slow x,y component
                 bomb = new component(20, 20, "bomb.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
                 bomb.effect = function () {
-                    
+
                     console.log("wheeee");
                     setTimeout(function () {
                         console.log("oy mate mi done");
                     }, 10000);
-                    
+
                     debugger;
                     score.update();
                     egg.update();
 
                     // bomb effect
-                    boom = new component(20, 20, "boom.png", ((bomb.x + chick.x)/2), ((bomb.y + chick.y)/2), "image");
+                    boom = new component(20, 20, "boom.png", ((bomb.x + chick.x) / 2), ((bomb.y + chick.y) / 2), "image");
                     boom.update();
 
                     gameArea.stop();
@@ -328,48 +336,48 @@ var powerUps = [
             }
         }
     },
-    // {
-    //     name: "Bucket",
-    //     startFunc: function () {
-    //         countdown += 1;
+    {
+        name: "Bucket",
+        startFunc: function () {
+            countdown += 1;
 
-    //         if (!settingInterval) {
-    //             // sets 10 sec interval
-    //             tenSecInterval = setInterval(function () {
-    //                 // console.log("tensecinterval")
-    //             }, 1000);
+            if (!settingInterval) {
+                // sets 10 sec interval
+                tenSecInterval = setInterval(function () {
+                    // console.log("tensecinterval")
+                }, 1000);
 
-    //             // reset base settings
-    //             settingInterval = true;
-    //             drawPowerUp = true;
-    //             randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+                // reset base settings
+                settingInterval = true;
+                drawPowerUp = true;
+                randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
 
-    //             // defines new slow x,y component
-    //             bucket = new component(20, 20, "bucketwater.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
-    //             bucket.effect = function () {
+                // defines new slow x,y component
+                bucket = new component(20, 20, "bucketwater.png", (Math.random() * 570), (Math.random() * 530 + 40), "image");
+                bucket.effect = function () {
 
-    //                 activePowerUp.pop();
-    //                 duckSpeed = 4;
-    //                 console.log("ducko: ", duckSpeed);
-    //                 setTimeout(function () {
-    //                     duckSpeed = 2;
-    //                     console.log("oy mate mi done");
-    //                 }, 10000);
-    
-    //             }
-    //             activePowerUp.push(bucket);
+                    activePowerUp.pop();
+                    duckSpeed = 4;
+                    console.log("ducko: ", duckSpeed);
+                    setTimeout(function () {
+                        duckSpeed = 2;
+                        console.log("oy mate mi done");
+                    }, 10000);
 
-    //         } else if (settingInterval && drawPowerUp) {
-    //             // draws powerup only during this 10s interim unless picked up by chick
-    //             bucket.update();
-    //         }
+                }
+                activePowerUp.push(bucket);
 
-    //         // sets the 10s timer for powerup, so that it only appears for 10s
-    //         if (countdown === 400) {
-    //             resetPowerUp();
-    //         }
-    //     }
-    // },
+            } else if (settingInterval && drawPowerUp) {
+                // draws powerup only during this 10s interim unless picked up by chick
+                bucket.update();
+            }
+
+            // sets the 10s timer for powerup, so that it only appears for 10s
+            if (countdown === 400) {
+                resetPowerUp();
+            }
+        }
+    },
 ];
 
 function resetPowerUp() {
@@ -453,6 +461,7 @@ var gameArea = {
         this.canvas.width = 600;
         this.context = this.canvas.getContext("2d");
         document.querySelector("main").appendChild(this.canvas);
+        
         this.frameNo = 0;
 
         console.log(gameStarted);
@@ -510,5 +519,6 @@ function resetGame() {
     drawPowerUp = true;
     collisionFx = true;
     duckSpeed = 2;
+    chick.image = "chick.png";
     window.addEventListener("keydown", toInitialiseGame);
 }
