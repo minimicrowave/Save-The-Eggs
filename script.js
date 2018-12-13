@@ -56,9 +56,6 @@ var boom;
 
 // loads start menu
 window.onload = function () {
-    backgroundMusic = new Audio("Bongo_Madness.mp3");
-    backgroundMusic.play();
-    
     gameArea.start();
     titleScreen = new component("17px", 'Courier', "black", 85, 290, "text");
     titleScreen.text = "Avoid the rubber duckies and save the eggs!";
@@ -66,6 +63,8 @@ window.onload = function () {
     titleScreenInstr.text = "Press <spacebar> to start.";
     titleScreen.update();
     titleScreenInstr.update();
+    
+    backgroundMusic = new Audio("Bongo_Madness.mp3");
     
     window.addEventListener("keydown", toInitialiseGame);
 }
@@ -77,6 +76,7 @@ function toInitialiseGame(evt) {
     if (evt.keyCode == 32) {
         window.removeEventListener("keydown", toInitialiseGame);
         gameStarted = true;
+        backgroundMusic.play();
         gameArea.clear();
         startGame();
     }
@@ -220,6 +220,7 @@ var powerUps = [{
                 settingInterval = true;
                 drawPowerUp = true;
                 randomNumForScore = Math.round(Math.random() * 7) + currentScore; // assigns random number for the next power up function
+                
                 // defines new slow x,y component
                 slow = new component(20, 20, "slow.png", Math.random() * 570, (Math.random() * 530 + 40), "image");
                 slow.effect = function () {
@@ -478,6 +479,7 @@ var gameArea = {
 
     stop: function () {
         clearInterval(this.interval);
+        backgroundMusic.stop();
         resetGame();
     }
 }
@@ -507,6 +509,7 @@ function resetGame() {
     endGameText2.update();
 
     // To reset game conditions
+    chick.image.src  = "chick.png";
     randomNumForScore = 6;
     randomNumForPowerup;
     powerUpLoopDone = true;
