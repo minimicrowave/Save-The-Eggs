@@ -12,7 +12,7 @@ A Javascript Canvas game that only requires keyboard.
 
 Clone the repo and fire up index.html in the browser to play!
 
-```git clone https://github.com/minimicrowave/wdi-17```
+```git clone https://github.com/minimicrowave/Save-The-Eggs```
 
 # Technologies
 - Javascript
