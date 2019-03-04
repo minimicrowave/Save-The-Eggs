@@ -1,6 +1,6 @@
 # Project 1
 
-_Avoid the Duckies_
+_Save The Eggs_
 
 A Javascript Canvas game that only requires keyboard.
 
